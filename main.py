@@ -1,8 +1,8 @@
 import requests
 import time
-import os  # Import os to read environment variables
+import os
+import json  # ✅ Use JSON instead of Replit db
 from decimal import Decimal, getcontext
-from replit import db  # Store last price in Replit's database
 
 # Set high precision for calculations
 getcontext().prec = 10
@@ -19,10 +19,10 @@ PAIR_2 = {
 }
 
 # Threshold for notification
-THRESHOLD = Decimal("2.5")  # Alert if ratio exceeds 2.5
+THRESHOLD = Decimal("2.5")
 
 # Load Telegram Bot Credentials securely
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # ✅ Use key names
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # ✅ Use environment variables
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Function to send a Telegram message
@@ -43,13 +43,26 @@ def get_price(blockchain, pair_address):
         print(f"⚠️ Error fetching price for {pair_address}")
         return None
 
-# Function to save price in Replit's database
-def save_price_to_db(pair_key, price):
-    db[pair_key] = str(price)
+# Function to save price to a JSON file instead of Replit db
+def save_price_to_file(pair_key, price):
+    data = load_prices()
+    data[pair_key] = str(price)  # Store as string to avoid JSON serialization issues
 
-# Function to get last stored price
+    with open("data.json", "w") as file:
+        json.dump(data, file)
+
+# Function to get last stored price from JSON file
 def get_last_price(pair_key):
-    return Decimal(db.get(pair_key, "0"))  # Default to 0 if no previous price
+    data = load_prices()
+    return Decimal(data.get(pair_key, "0"))  # Default to 0 if no previous price
+
+# Function to load stored prices from the JSON file
+def load_prices():
+    try:
+        with open("data.json", "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
 
 # Track price changes
 while True:
@@ -73,9 +86,9 @@ while True:
         send_telegram_alert(update)
         print(f"📲 Telegram updated")
 
-        # Save new prices to Replit database
-        save_price_to_db("PAIR_1", price_1)
-        save_price_to_db("PAIR_2", price_2)
+        # Save new prices to JSON file
+        save_price_to_file("PAIR_1", price_1)
+        save_price_to_file("PAIR_2", price_2)
 
         # 🚨 Send Telegram alert if ratio exceeds threshold
         if ratio > THRESHOLD:
@@ -87,4 +100,4 @@ while True:
         send_telegram_alert(test)
         print(f"test")
 
-    time.sleep(9)  # Check for updates every 10 seconds
+    time.sleep(9)  # Check for updates every 9 seconds
