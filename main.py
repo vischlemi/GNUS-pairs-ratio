@@ -1,3 +1,22 @@
+import json
+import os
+
+# Function to create an empty JSON file if it doesn't exist
+def initialize_json_file():
+    if not os.path.exists("data.json"):
+        with open("data.json", "w") as file:
+            json.dump({}, file)  # Save an empty dictionary in JSON file
+
+# Call function at startup
+initialize_json_file()
+
+
+
+
+
+
+
+
 import requests
 import time
 import os
