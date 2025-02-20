@@ -85,6 +85,6 @@ while True:
     else:
         test = f"test"
         send_telegram_alert(test)
-        print(f"a")
+        print(f"test")
 
     time.sleep(9)  # Check for updates every 10 seconds
