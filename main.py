@@ -38,7 +38,7 @@ PAIR_2 = {
 }
 
 # Threshold for notification
-THRESHOLD = Decimal("2.5")
+THRESHOLD = Decimal("3")
 
 # Load Telegram Bot Credentials securely
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # ✅ Use environment variables
@@ -114,9 +114,5 @@ while True:
             alert_message = f"🚨 ALERT! Ratio exceeded {THRESHOLD}: {ratio:.4f} 🚀"
             send_telegram_alert(alert_message)
             print(f"📲 Telegram alert sent: {alert_message}")
-    else:
-        test = f"test"
-        send_telegram_alert(test)
-        print(f"test")
 
     time.sleep(9)  # Check for updates every 9 seconds
